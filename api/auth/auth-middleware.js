@@ -27,6 +27,7 @@ const restricted = (req, res, next) => {
       return next({ status: 401, message: "Token invalid" });
     }
     req.decodedJwt = decodedToken;
+    console.log(req.decodedJwt);
   });
 };
 
@@ -41,6 +42,7 @@ const only = (role_name) => (req, res, next) => {
 
     Pull the decoded token from the req object, to avoid verifying it again!
   */
+  //  if (role_name !== req.headers.authorization)
 };
 
 const checkUsernameExists = async (req, res, next) => {
@@ -78,6 +80,17 @@ const validateRoleName = (req, res, next) => {
       "message": "Role name can not be longer than 32 chars"
     }
   */
+  const roleName = req.body.role_name;
+  if (!roleName || roleName.trim() === "") {
+    req.role_name = "student";
+    next();
+  } else if (roleName.trim() === "admin") {
+    next({ status: 422, message: "Role name can not be admin" });
+  } else if (roleName.trim().length > 32) {
+    next({ status: 422, message: "Role name can not be longer than 32 chars" });
+  } else {
+    next();
+  }
 };
 
 module.exports = {

@@ -26,7 +26,7 @@ const restricted = (req, res, next) => {
     if (err) {
       return next({ status: 401, message: "Token invalid" });
     }
-    req.decodedJwt = decodedToken;
+    req.decodedToken = decodedToken;
     next();
   });
 };
@@ -42,8 +42,11 @@ const only = (role_name) => (req, res, next) => {
 
     Pull the decoded token from the req object, to avoid verifying it again!
   */
-  //  if (role_name !== req.headers.authorization)
-  next();
+  if (role_name !== req.decodedToken.role_name) {
+    next({ status: 403, message: "This is not for you" });
+  } else {
+    next();
+  }
 };
 
 const checkUsernameExists = async (req, res, next) => {
@@ -54,11 +57,15 @@ const checkUsernameExists = async (req, res, next) => {
       "message": "Invalid credentials"
     }
   */
-  const existing = await User.findBy({ username: req.body.username }).first();
-  if (!existing) {
-    next({ status: 401, message: "Invalid credentials" });
-  } else {
-    next();
+  try {
+    const existing = await User.findBy({ username: req.body.username }).first();
+    if (!existing) {
+      next({ status: 401, message: "Invalid credentials" });
+    } else {
+      next();
+    }
+  } catch (err) {
+    next(err);
   }
 };
 

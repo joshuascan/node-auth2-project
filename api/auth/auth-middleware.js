@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../secrets"); // use this secret!
 
 const restricted = (req, res, next) => {
@@ -16,9 +17,19 @@ const restricted = (req, res, next) => {
 
     Put the decoded token in the req object, to make life easier for middlewares downstream!
   */
-}
+  const token = req.headers.authorization;
+  if (!token) {
+    return next({ status: 401, message: "Token required" });
+  }
+  jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
+    if (err) {
+      return next({ status: 401, message: "Token invalid" });
+    }
+    req.decodedJwt = decodedToken;
+  });
+};
 
-const only = role_name => (req, res, next) => {
+const only = (role_name) => (req, res, next) => {
   /*
     If the user does not provide a token in the Authorization header with a role_name
     inside its payload matching the role_name passed to this function as its argument:
@@ -29,8 +40,7 @@ const only = role_name => (req, res, next) => {
 
     Pull the decoded token from the req object, to avoid verifying it again!
   */
-}
-
+};
 
 const checkUsernameExists = (req, res, next) => {
   /*
@@ -40,8 +50,7 @@ const checkUsernameExists = (req, res, next) => {
       "message": "Invalid credentials"
     }
   */
-}
-
+};
 
 const validateRoleName = (req, res, next) => {
   /*
@@ -62,11 +71,11 @@ const validateRoleName = (req, res, next) => {
       "message": "Role name can not be longer than 32 chars"
     }
   */
-}
+};
 
 module.exports = {
   restricted,
   checkUsernameExists,
   validateRoleName,
   only,
-}
+};

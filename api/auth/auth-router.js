@@ -1,9 +1,11 @@
 const router = require("express").Router();
-const { checkUsernameExists, validateRoleName } = require('./auth-middleware');
+const { checkUsernameExists, validateRoleName } = require("./auth-middleware");
 const { JWT_SECRET } = require("../secrets"); // use this secret!
 
-router.post("/register", validateRoleName, (req, res, next) => {
-  /**
+router.post(
+  "/register",
+  /*validateRoleName,*/ (req, res, next) => {
+    /**
     [POST] /api/auth/register { "username": "anna", "password": "1234", "role_name": "angel" }
 
     response:
@@ -14,11 +16,14 @@ router.post("/register", validateRoleName, (req, res, next) => {
       "role_name": "angel"
     }
    */
-});
+    res.status(200).json("register post request");
+  }
+);
 
-
-router.post("/login", checkUsernameExists, (req, res, next) => {
-  /**
+router.post(
+  "/login",
+  /*checkUsernameExists,*/ (req, res, next) => {
+    /**
     [POST] /api/auth/login { "username": "sue", "password": "1234" }
 
     response:
@@ -37,6 +42,8 @@ router.post("/login", checkUsernameExists, (req, res, next) => {
       "role_name": "admin" // the role of the authenticated user
     }
    */
-});
+    res.status(200).json("login post request");
+  }
+);
 
 module.exports = router;
